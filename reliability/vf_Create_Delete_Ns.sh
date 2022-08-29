@@ -1,8 +1,8 @@
 #! /bin/bash
 ##########################################################################################
 # this script is use to multi ns test
-# Author : daining
-# Date   : 2022.5.10
+# Author : dapustor
+# Date   : 2022.8.30
 #*******************************************************************************
 #脚本参数说明:
 #sn      : 盘片sn
@@ -10,15 +10,17 @@
 #*******************************************************************************
 #####  prepare log file
 
-if [ $# -ne 1 ]; then 	
+if [ $# -ne 2 ]; then 	
 	echo -e "Please check and input parameter
-	1 pf dev" 	
+	1 pf dev
+	2 sn: to be test's sn " 	
 	exit 0	
 else
 	echo -e "test device sn is $1"
-	dev_pf=$1	
+	dev_pf=$1
+	sn=$2	
 fi
-
+log_file='test.log'
 #fmt=$(python -c 'import random;list=["0","1"];print random.choice(list)')
 #*******************************************************************************
 #函数名称：ns_create_ave
@@ -35,7 +37,7 @@ function ns_create_ave()
 		num_blk=$(($size_cap/1000/1000/1000/$ns_num*1000*1000*1000/512))
 		sleep 2
 		
-		echo "debug for create-ns $dev_pf --nsze=$num_blk --ncap=$num_blk --flbas=0"
+		#echo "debug for create-ns $dev_pf --nsze=$num_blk --ncap=$num_blk --flbas=0"
 		crt_ns=`nvme create-ns $dev_pf --nsze=$num_blk --ncap=$num_blk --flbas=0`
 		
 		if [ $? -ne 0 ]; then
@@ -90,12 +92,14 @@ function ns_delete()
 
 #############main test flow###############
 size_cap=`nvme id-ctrl $dev_pf | grep 'tnvmcap' | awk -F ":" '{print $2}'`
-for((i=0;i<50;i++));do
+for((cyc=1;cyc<=5;cyc++));do
 	ns_delete
 	ns_create_ave 16
 	ns_attach_ave
 
 	pf_nvme=${dev_pf##*/}
-	./setVF_res.sh $pf_nvme 16
+	./setVF_res.sh $pf_nvme 16 7
+	sleep 2
+	vf_num=`nvme list | grep $sn | wc -l`
+	echo "test cycle is $cyc, vf num is $vf_num"	
 done
-

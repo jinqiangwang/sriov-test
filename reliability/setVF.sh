@@ -1,23 +1,22 @@
 #!/bin/bash 
 ##########################################################################################
 # this script is use to set source for vf
-# Author : daining
-# Date   : 2022.5.10
+# Date   : 2022.8.30
 #*******************************************************************************
-if [ "$#" != 2 ]; then
+if [ "$#" != 3 ]; then
     echo -e "please input para dev,vf cnt \nexample: $0 nvme0"
     exit
 fi
 
 nvme_dev=$1
 active_vf_cnt=$2
-
+res_cnt=$3
 #set_vf_cnt=`nvme dapu set-sriov /dev/nvme0 -s 1 -n 8`
-res_cnt=7
+
 
 # shutoff sriov
 echo 0 > /sys/class/nvme/${nvme_dev}/device/sriov_numvfs
-sleep 5
+sleep 2
 
 ###########################
 # offline those online VFs 
