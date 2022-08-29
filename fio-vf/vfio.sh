@@ -120,8 +120,6 @@ do
     sync
 done
 
-reset_spdk "${spdk_dir}"
-
 for disk in ${disks[@]}
 do
     iostat_to_csv ${iostat_dir}
