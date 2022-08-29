@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 new_vf_cnt=
 nvme_dev=
