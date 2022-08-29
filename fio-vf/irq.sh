@@ -43,7 +43,7 @@ echo "[CPU_NUMA]"
 lscpu | grep NUMA
 for dev in ${dev_list[@]}
 do
-    numa_of_nvme ${dev}
+    numa_of_nvme ${dev%n*}
 done
 
 echo""
