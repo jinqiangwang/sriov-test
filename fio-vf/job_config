@@ -22,8 +22,5 @@ export workloads=( \
     seqwrite \
     seqread \
     randwrite \
-    # randrw55 \
-    # randrw28 \
-    # randrw82 \
     randread \
     )
