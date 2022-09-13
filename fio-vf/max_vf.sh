@@ -67,6 +67,7 @@ fi
 # run subsystem-reset to make new max VF count effective
 nvme subsystem-reset /dev/${nvme_dev}
 
-sleep 1
+counting_sec 5
+
 echo "New VFs:"
 grep . /sys/class/nvme/${nvme_dev}/device/sriov_*vfs

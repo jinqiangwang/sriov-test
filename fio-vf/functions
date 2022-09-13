@@ -269,3 +269,16 @@ function nvme_has_mnt_pnt() {
     fi
     return ${retcode}
 }
+
+function counting_sec() {
+    counting=$1
+    if [ -z "${counting}" ]; then counting=3; fi
+    fmt_msg="counting for ${counting} seconds: %${#counting}d"
+    for((i=${counting};i>0;i--))
+    do
+        printf "${fmt_msg}" $i
+        sleep 1
+        printf "\r"
+    done
+    echo "done"
+}
