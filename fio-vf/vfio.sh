@@ -1,27 +1,27 @@
 #!/bin/bash
 
-usage="invalid parameters provided. \nexample:\n\t $0 [-t nvme|spdk] -d \"nvme0n1 nvme1n1\" [-b \"0-7 8-15\"]\n"
+usage="invalid parameters provided. \nexample:\n\t $0 -d \"nvme0n1 nvme1n1\" [-b \"0-7 8-15\"] [-j job_cfg_file]\n"
 
 export my_dir="$( cd "$( dirname "$0"  )" && pwd  )"
 timestamp=`date +%Y%m%d_%H%M%S`
 output_dir=${my_dir}/${timestamp}
+job_cfg=""
 
 # default values
-type=nvme
 disks=""
 bind_list=""
 
-while getopts "t:d:b:" opt
+while getopts "d:b:j:" opt
 do
     case $opt in 
-    t)
-        type=$OPTARG
-        ;;
     d)
         disks=($OPTARG)
         ;;
     b)
         bind_list=($OPTARG)
+        ;;
+    j)
+        job_cfg=($OPTARG)
         ;;
     *)
         echo -e ${usage}
@@ -35,8 +35,15 @@ then
     exit 1
 fi
 
+if [ -z "${job_cfg}" ]
+then
+    job_cfg="job_config"
+fi
+
+echo ${my_dir}/${job_cfg}
+
 source ${my_dir}/functions
-source ${my_dir}/job_config
+source ${my_dir}/${job_cfg}
 source ${my_dir}/nvme_dev.sh > /dev/null
 
 fio_cmd="fio"
@@ -54,9 +61,12 @@ mkdir -p ${drvinfo_dir}
 mkdir -p ${iolog_dir}
 mkdir -p ${iostat_dir}
 
-echo -e "$0 $@\n"        > ${output_dir}/sysinfo.log
-echo "${nvme_dev_info}" >> ${output_dir}/sysinfo.log
-collect_sys_info        >> ${output_dir}/sysinfo.log
+echo -n "$(which ${fio_cmd}): "         > ${output_dir}/sysinfo.log
+echo "version $(${fio_cmd} --version)" >> ${output_dir}/sysinfo.log
+echo -e "$0 $@\n"                      >> ${output_dir}/sysinfo.log
+echo "${nvme_dev_info}"                >> ${output_dir}/sysinfo.log
+collect_sys_info                       >> ${output_dir}/sysinfo.log
+cp ${my_dir}/${job_cfg} ${output_dir}/
 
 test_disks=""
 
